@@ -22,22 +22,26 @@
     </tr>
     </thead>
     <tbody>
-    <tr>
+
+    @if (Model != null)
+    {
         @foreach (var order in Model)
         {
-            <td>@order.Id</td> 
-            <td>@order.UserName</td>
-            <td>@order.PhoneNumber</td> 
-            <td>@order.Email</td> 
-            <td>@order.UserId</td> 
-            <td>@order.OrderDate</td> 
-            <td>@order.CompletedDate</td> 
-            <td>@order.OrderStatus</td>
-            <td>
-                <a class="btn btn-sm btn-success" asp-controller="Admin" asp-action="Update" asp-route-id="@order.Id">update</a>
-            </td>
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.UserName</td>
+                <td>@order.PhoneNumber</td>
+                <td>@order.Email</td>
+                <td>@order.UserId</td>
+                <td>@order.OrderDate</td>
+                <td>@order.CompletedDate</td>
+                <td>@order.OrderStatus</td>
+                <td>
+                    <a class="btn btn-sm btn-success" asp-controller="Admin" asp-action="Update" asp-route-id="@order.Id">update</a>
+                </td>
+            </tr>
         }
-       
-    </tr>
+    }
+
     </tbody>
 </table>
