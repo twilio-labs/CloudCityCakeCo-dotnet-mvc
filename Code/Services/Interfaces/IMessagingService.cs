@@ -4,8 +4,8 @@ using CloudCityCakeCo.Models.Helpers;
 
 namespace CloudCityCakeCo.Services.Interfaces
 {
-    public interface IEmailService
+    public interface IMessagingService
     {
-        Task<ServiceResponse> SendEmail(CakeOrder cakeOrder);
+        Task<ServiceResponse> SendMessage(CakeOrder cakeOrder);
     }
 }

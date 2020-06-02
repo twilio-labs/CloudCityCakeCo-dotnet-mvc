@@ -17,15 +17,15 @@ namespace CloudCityCakeCo.Services.Implementations
     {
         private readonly IUserRepository _userRepository;
         private readonly ICakeOrderRepository _cakeOrderRepository;
-        private readonly IEmailService _emailService;
+        private readonly INotificationHandler _notificationHandler;
 
         public CakeOrderService(IUserRepository userRepository,
             ICakeOrderRepository cakeOrderRepository,
-            IEmailService emailService)
+            INotificationHandler notificationHandler)
         {
             _userRepository = userRepository?? throw new ArgumentNullException(nameof(userRepository));
             _cakeOrderRepository = cakeOrderRepository?? throw new ArgumentNullException(nameof(cakeOrderRepository));
-            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
+            _notificationHandler = notificationHandler ?? throw new ArgumentNullException(nameof(notificationHandler));
         }
         
         public async Task<ServiceResponse<CakeOrderViewModel>> AddNewOrderAsync(OrderDetails orderDetails)
@@ -130,13 +130,11 @@ namespace CloudCityCakeCo.Services.Implementations
 
             var cakeOrderEntity = await _cakeOrderRepository.UpdateAsync(entity);
 
-            if (entity.OrderStatus == OrderStatus.Accepted)
-            {
-               var emailResponse =  await _emailService.SendEmail(entity);
-            }
+            var serviceResponse = await _notificationHandler.SendNotification(cakeOrderEntity);
 
             response.Content = cakeOrder;
-            response.ServiceResponseStatus = ServiceResponseStatus.Ok;
+            response.ServiceResponseStatus = serviceResponse.ServiceResponseStatus;
+            response.Message = serviceResponse.Message;
 
             return response;
 

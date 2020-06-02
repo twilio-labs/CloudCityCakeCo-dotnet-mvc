@@ -3,6 +3,8 @@ using System.IO;
 using System.Threading.Tasks;
 using CloudCityCakeCo.Models.DTO;
 using CloudCityCakeCo.Models.Entities;
+using CloudCityCakeCo.Models.Enums;
+using CloudCityCakeCo.Models.Helpers;
 using CloudCityCakeCo.Services.Interfaces;
 using Microsoft.AspNetCore.Server.IIS.Core;
 using Microsoft.Extensions.Options;
@@ -20,7 +22,7 @@ namespace CloudCityCakeCo.Services.Implementations
             _account = account.Value ?? throw new ArgumentNullException(nameof(account));
         }
 
-        public async Task<Response> SendEmail(CakeOrder cakeOrder)
+        public async Task<ServiceResponse> SendEmail(CakeOrder cakeOrder)
         {
             var email = CreateEmail(cakeOrder);
             var message = MailHelper.CreateSingleEmail(
@@ -34,7 +36,13 @@ namespace CloudCityCakeCo.Services.Implementations
             
             var client = new SendGridClient(_account.ApiKey);
 
-            return await client.SendEmailAsync(message);
+            var _ =  await client.SendEmailAsync(message);
+            
+            return new ServiceResponse
+            {
+                Message = "email sent",
+                ServiceResponseStatus = ServiceResponseStatus.Ok
+            };
         }
 
         private Email CreateEmail(CakeOrder cakeOrder)

@@ -7,6 +7,7 @@ using CloudCityCakeCo.Data.Repositories;
 using CloudCityCakeCo.Models.DTO;
 using CloudCityCakeCo.Services.Implementations;
 using CloudCityCakeCo.Services.Interfaces;
+using CloudCityCakeCo.Services.NotificationRules;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -14,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace CloudCityCakeCo
 {
@@ -37,8 +39,14 @@ namespace CloudCityCakeCo
 
             services.AddScoped<ICakeOrderService, CakeOrderService>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<IMessagingService, MessagingService>();
+
+            services.AddScoped<IStatusNotificationRule, CompletedNotificationRule>();
+            services.AddScoped<IStatusNotificationRule, AcceptedNotificationRule>();
+            services.AddScoped<INotificationHandler, NotificationHandler>();
 
             services.Configure<SendGridAccount>(Configuration.GetSection("SendGridAccount"));
+            services.Configure<TwilioAccount>(Configuration.GetSection("TwilioAccount"));
             
             services.AddControllersWithViews();
         }
