@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CloudCityCakeCo.Data;
+using CloudCityCakeCo.Data.Repositories;
+using CloudCityCakeCo.Services.Implementations;
+using CloudCityCakeCo.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -28,6 +31,11 @@ namespace CloudCityCakeCo
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultSql")));
 
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ICakeOrderRepository, CakeOrderRepository>();
+
+            services.AddScoped<ICakeOrderService, CakeOrderService>();
+            
             services.AddControllersWithViews();
         }
 

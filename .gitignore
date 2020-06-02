@@ -9,6 +9,7 @@
 *.idea*
 /dotnet/**/.idea/
 .idea/*
+**/Migrations
 .DS_Store
     
 
