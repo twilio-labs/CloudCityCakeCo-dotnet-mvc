@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CloudCityCakeCo.Data;
 using CloudCityCakeCo.Data.Repositories;
+using CloudCityCakeCo.Models.DTO;
 using CloudCityCakeCo.Services.Implementations;
 using CloudCityCakeCo.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
@@ -35,6 +36,9 @@ namespace CloudCityCakeCo
             services.AddScoped<ICakeOrderRepository, CakeOrderRepository>();
 
             services.AddScoped<ICakeOrderService, CakeOrderService>();
+            services.AddScoped<IEmailService, EmailService>();
+
+            services.Configure<SendGridAccount>(Configuration.GetSection("SendGridAccount"));
             
             services.AddControllersWithViews();
         }

@@ -17,12 +17,15 @@ namespace CloudCityCakeCo.Services.Implementations
     {
         private readonly IUserRepository _userRepository;
         private readonly ICakeOrderRepository _cakeOrderRepository;
+        private readonly IEmailService _emailService;
 
         public CakeOrderService(IUserRepository userRepository,
-            ICakeOrderRepository cakeOrderRepository)
+            ICakeOrderRepository cakeOrderRepository,
+            IEmailService emailService)
         {
             _userRepository = userRepository?? throw new ArgumentNullException(nameof(userRepository));
             _cakeOrderRepository = cakeOrderRepository?? throw new ArgumentNullException(nameof(cakeOrderRepository));
+            _emailService = emailService ?? throw new ArgumentNullException(nameof(emailService));
         }
         
         public async Task<ServiceResponse<CakeOrderViewModel>> AddNewOrderAsync(OrderDetails orderDetails)
@@ -126,6 +129,11 @@ namespace CloudCityCakeCo.Services.Implementations
             entity.OrderStatus = cakeOrder.OrderStatus;
 
             var cakeOrderEntity = await _cakeOrderRepository.UpdateAsync(entity);
+
+            if (entity.OrderStatus == OrderStatus.Accepted)
+            {
+               var emailResponse =  await _emailService.SendEmail(entity);
+            }
 
             response.Content = cakeOrder;
             response.ServiceResponseStatus = ServiceResponseStatus.Ok;
