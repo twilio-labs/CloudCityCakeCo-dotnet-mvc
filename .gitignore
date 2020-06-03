@@ -10,6 +10,7 @@
 /dotnet/**/.idea/
 .idea/*
 .DS_Store
+**/Migrations
     
 
 # User-specific files
