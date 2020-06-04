@@ -487,7 +487,7 @@
             "type": "send-and-wait-for-reply",
             "transitions": [
                 {
-                    "next": "PostOrder",
+                    "next": "OrderConfirmation",
                     "event": "incomingMessage"
                 },
                 {
@@ -510,29 +510,6 @@
             }
         },
         {
-            "name": "PostOrder",
-            "type": "make-http-request",
-            "transitions": [
-                {
-                    "next": "OrderConfirmation",
-                    "event": "success"
-                },
-                {
-                    "event": "failed"
-                }
-            ],
-            "properties": {
-                "offset": {
-                    "x": -60,
-                    "y": 3770
-                },
-                "method": "POST",
-                "content_type": "application/json;charset=utf-8",
-                "body": "{\n \"number\": \"{{trigger.message.From}}\",\n \"name\": \"{{widgets.AskName.inbound.Body}}\",\n \"email\": \"{{widgets.AskEmail.inbound.Body}}\",\n  \"cake\": {\n      \"topping\": \"{{widgets.AskCakeTopping.inbound.Body}}\",\n      \"frosting\": \"{{widgets.AskCakeFrosting.inbound.Body}}\",      \n      \"flavour\": \"{{widgets.AskCakeFlavour.inbound.Body}}\",\n      \"size\": \"{{widgets.Welcome.inbound.Body}}\",\n      \"price\": {{widgets.GetPrice.parsed.total}}\n      }\n}",
-                "url": "http://layla.ngrok.io/api/order"
-            }
-        },
-        {
             "name": "OrderConfirmation",
             "type": "send-message",
             "transitions": [
@@ -545,14 +522,14 @@
             ],
             "properties": {
                 "offset": {
-                    "x": 109,
-                    "y": 4035
+                    "x": -30,
+                    "y": 3750
                 },
                 "service": "{{trigger.message.InstanceSid}}",
                 "channel": "{{trigger.message.ChannelSid}}",
                 "from": "{{flow.channel.address}}",
                 "to": "{{contact.channel.address}}",
-                "body": "Hurrah, your order has been accepted and your order number is {{widgets.PostOrder.body}}"
+                "body": "We are sorting your order!"
             }
         }
     ],
