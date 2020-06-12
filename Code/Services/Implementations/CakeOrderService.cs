@@ -63,7 +63,7 @@ namespace CloudCityCakeCo.Services.Implementations
                 .AddCakeOrderAsync(cakeOrder)
                 .ConfigureAwait(false);
 
-            serviceResponse.Content = new CakeOrderViewModel(cakeOrderEntity, user);;
+            serviceResponse.Content = new CakeOrderViewModel(cakeOrderEntity, user);
             serviceResponse.ServiceResponseStatus = ServiceResponseStatus.Created;
 
             return serviceResponse;
