@@ -1,13 +1,23 @@
+using Microsoft.AspNetCore.Identity;
 using System.Collections.Generic;
 
 namespace CloudCityCakeCo.Models.Entities
 {
-    public class User
+    public class User : IdentityUser<int>
     {
-        public int Id { get; set; }
+
+        [PersonalData]
         public string Number { get; set; }
+        [PersonalData]
         public string Name { get; set; }
-        public string Email { get; set; }
+        [PersonalData]
         public virtual IList<CakeOrder> CakeOrders { get; set; }
     }
+
+
+
+    public class ApplicationRole : IdentityRole<int>
+    {
+    }
 }
+

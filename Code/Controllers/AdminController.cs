@@ -1,15 +1,14 @@
 using System;
-using System.Linq;
+using System.Collections;
 using System.Threading.Tasks;
-using CloudCityCakeCo.Models.Enums;
-using CloudCityCakeCo.Models.Helpers;
 using CloudCityCakeCo.Models.ViewModels;
 using CloudCityCakeCo.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace CloudCityCakeCo.Controllers
 {
+    [Authorize]
     public class AdminController : Controller
     {
         private readonly ICakeOrderService _cakeOrderService;

@@ -5,12 +5,15 @@ using System.Threading.Tasks;
 using CloudCityCakeCo.Data;
 using CloudCityCakeCo.Data.Repositories;
 using CloudCityCakeCo.Models.DTO;
+using CloudCityCakeCo.Models.Entities;
 using CloudCityCakeCo.Services.Implementations;
 using CloudCityCakeCo.Services.Interfaces;
 using CloudCityCakeCo.Services.NotificationRules;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -34,6 +37,11 @@ namespace CloudCityCakeCo
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultSql")));
 
+            services.AddIdentity<User, ApplicationRole>(
+                   options => options.SignIn.RequireConfirmedAccount = false)
+               .AddEntityFrameworkStores<ApplicationDbContext>()
+               .AddDefaultTokenProviders();
+
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICakeOrderRepository, CakeOrderRepository>();
 
@@ -47,7 +55,24 @@ namespace CloudCityCakeCo
 
             services.Configure<SendGridAccount>(Configuration.GetSection("SendGridAccount"));
             services.Configure<TwilioAccount>(Configuration.GetSection("TwilioAccount"));
-            
+
+
+            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest)
+                .AddRazorPagesOptions(options =>
+                {
+                    options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
+                    options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
+                });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = $"/Identity/Account/Login";
+                options.LogoutPath = $"/Identity/Account/Logout";
+                options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+            });
+
+
+            services.AddRazorPages();
             services.AddControllersWithViews();
         }
 
@@ -64,18 +89,25 @@ namespace CloudCityCakeCo
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
+              
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapRazorPages();
+               
             });
         }
     }
