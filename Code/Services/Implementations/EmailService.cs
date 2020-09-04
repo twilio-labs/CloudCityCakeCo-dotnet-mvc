@@ -67,8 +67,9 @@ namespace CloudCityCakeCo.Services.Implementations
 
         private string CreateInvoice()
         {
-            return @"/Users/lporter/Documents/Repos/VideoCode/CloudCityCakeCo/invoice.pdf";
+            return @"\Users\Layla\source\repos\CloudCityCakeCo-dotnet-mvc\Code\invoice.pdf";
         }
+
 
         private string EncodedAttachment(string path)
         {

@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using CloudCityCakeCo.Data;
 using CloudCityCakeCo.Data.Repositories;
 using CloudCityCakeCo.Models.DTO;
@@ -11,17 +7,16 @@ using CloudCityCakeCo.Services.Interfaces;
 using CloudCityCakeCo.Services.NotificationRules;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Twilio.Rest.Api.V2010.Account;
 
 namespace CloudCityCakeCo
 {
+    // https://docs.microsoft.com/en-us/aspnet/core/security/authentication/mfa?view=aspnetcore-3.1
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -34,6 +29,10 @@ namespace CloudCityCakeCo
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<SendGridAccount>(Configuration.GetSection("SendGridAccount"));
+            services.Configure<TwilioAccount>(Configuration.GetSection("TwilioAccount"));
+            services.Configure<AuthySettings>(Configuration.GetSection("AuthySettings"));
+
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultSql")));
 
@@ -42,27 +41,29 @@ namespace CloudCityCakeCo
                .AddEntityFrameworkStores<ApplicationDbContext>()
                .AddDefaultTokenProviders();
 
+            services.AddAuthorization(options =>
+                options.AddPolicy("TwoFactorEnabled",
+                    x => x.RequireClaim("amr", "mfa")));
+
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ICakeOrderRepository, CakeOrderRepository>();
 
             services.AddScoped<ICakeOrderService, CakeOrderService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IMessagingService, MessagingService>();
+            services.AddScoped<IAuthyService, AuthyService>();
+           // services.AddScoped<AuthyService>();
 
             services.AddScoped<IStatusNotificationRule, CompletedNotificationRule>();
             services.AddScoped<IStatusNotificationRule, AcceptedNotificationRule>();
             services.AddScoped<INotificationHandler, NotificationHandler>();
 
-            services.Configure<SendGridAccount>(Configuration.GetSection("SendGridAccount"));
-            services.Configure<TwilioAccount>(Configuration.GetSection("TwilioAccount"));
-
-
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Latest)
-                .AddRazorPagesOptions(options =>
-                {
-                    options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
-                    options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
-                });
+                                .AddRazorPagesOptions(options =>
+                                {
+                                    options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
+                                    options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
+                                });
 
             services.ConfigureApplicationCookie(options =>
             {
@@ -71,7 +72,7 @@ namespace CloudCityCakeCo
                 options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
             });
 
-
+            services.AddHttpClient();
             services.AddRazorPages();
             services.AddControllersWithViews();
         }
@@ -102,12 +103,12 @@ namespace CloudCityCakeCo
 
             app.UseEndpoints(endpoints =>
             {
-              
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
                 endpoints.MapRazorPages();
-               
+
             });
         }
     }
