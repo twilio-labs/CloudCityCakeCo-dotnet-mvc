@@ -2,6 +2,7 @@
 @model LoginWith2faModel
 @{
     ViewData["Title"] = "Two-factor authentication";
+    
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -11,6 +12,7 @@
     <div class="col-md-4">
         <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
             <input asp-for="RememberMe" type="hidden" />
+            <input asp-for="@Model.IsRegistration" type="hidden" />
             <div asp-validation-summary="All" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Input.TwoFactorCode"></label>

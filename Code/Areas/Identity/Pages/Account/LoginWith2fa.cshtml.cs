@@ -48,6 +48,7 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
 
             [Display(Name = "Remember this machine")]
             public bool RememberMachine { get; set; }
+          
         }
 
         public async Task<IActionResult> OnGetAsync(
@@ -56,8 +57,7 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
             bool isRegistration = false)
         {
             IsRegistration = isRegistration;
-            var t = await _signInManager.UserManager.GetUserAsync(User);
-
+           
             User user = IsRegistration ?
                         await _signInManager.UserManager.GetUserAsync(User) :
                         await _signInManager.GetTwoFactorAuthenticationUserAsync();
@@ -80,22 +80,27 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(bool rememberMe, string returnUrl = null)
+        public async Task<IActionResult> OnPostAsync(
+            bool rememberMe,
+            bool isRegistration,
+            string returnUrl = null)
         {
 
             if (!ModelState.IsValid)
             {
                 return Page();
             }
-
+            IsRegistration = isRegistration;
             returnUrl = returnUrl ?? Url.Content("~/");
-
-            var user = await _signInManager.UserManager.GetUserAsync(User);
+            
+            User user = IsRegistration ?
+                        await _signInManager.UserManager.GetUserAsync(User) :
+                        await _signInManager.GetTwoFactorAuthenticationUserAsync();
 
             if (user == null)
             {
-                user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-                //throw new InvalidOperationException($"Unable to load two-factor authentication user.");
+               
+                throw new InvalidOperationException($"Unable to load two-factor authentication user.");
             }
 
             var tokenResult =

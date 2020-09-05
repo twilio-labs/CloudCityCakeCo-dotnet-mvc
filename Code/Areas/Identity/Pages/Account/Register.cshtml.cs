@@ -111,7 +111,7 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
 
                     //var smsToken = await _authyService.SendSmsAsync(user.AuthyId);
                     // var smsToken = "12324";
-                    //await _signInManager.SignInAsync(user, isPersistent: false);
+                    await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToPage("LoginWith2fa", new { rememberMe = false, returnUrl = "~/", isRegistration = true });
 
                     // await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
