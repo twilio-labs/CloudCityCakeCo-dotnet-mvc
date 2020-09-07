@@ -8,6 +8,7 @@ using CloudCityCakeCo.Services.Interfaces;
 using Microsoft.Extensions.Options;
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
+using Twilio.Rest.Lookups.V1;
 using Twilio.Types;
 
 namespace CloudCityCakeCo.Services.Implementations
@@ -19,11 +20,13 @@ namespace CloudCityCakeCo.Services.Implementations
         public MessagingService(IOptions<TwilioAccount> account)
         {
             _account = account.Value ?? throw new ArgumentNullException();
+
+            TwilioClient.Init(_account.AccountSid, _account.AuthToken);
+
         }
 
         public async Task<ServiceResponse> SendMessage(CakeOrder cakeOrder)
         {
-            TwilioClient.Init(_account.AccountSid, _account.AuthToken);
 
             var message = await MessageResource
                 .CreateAsync(from: new PhoneNumber("whatsapp:+14155238886"),
@@ -36,5 +39,7 @@ namespace CloudCityCakeCo.Services.Implementations
                 ServiceResponseStatus = ServiceResponseStatus.Ok
             };
         }
+
+
     }
 }

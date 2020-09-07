@@ -7,5 +7,6 @@ namespace CloudCityCakeCo.Services.Interfaces
     public interface IMessagingService
     {
         Task<ServiceResponse> SendMessage(CakeOrder cakeOrder);
+      
     }
 }

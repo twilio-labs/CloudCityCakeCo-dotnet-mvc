@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CloudCityCakeCo.Controllers
 {
     [Authorize]
+    [Route("/orders")]
     public class AdminController : Controller
     {
         private readonly ICakeOrderService _cakeOrderService;
@@ -17,8 +18,9 @@ namespace CloudCityCakeCo.Controllers
         {
             _cakeOrderService = cakeOrderService ?? throw new ArgumentNullException(nameof(cakeOrderService));
         }
-        
+
         // GET
+        [Route("/orders")]
         public IActionResult Index()
         {
             var cakeOrders = _cakeOrderService.GetAllCakeOrders();
@@ -26,6 +28,7 @@ namespace CloudCityCakeCo.Controllers
         }
 
         [HttpGet]
+        [Route("/orders/update/{id}")]
         public async Task<IActionResult> Update(int id)
         {
             var cakeOrder = await _cakeOrderService.GetOrderByIdAsync(id);
@@ -34,6 +37,7 @@ namespace CloudCityCakeCo.Controllers
         }
         
         [HttpPost]
+        [Route("/orders/update")]
         public async Task<IActionResult> Update(CakeOrderViewModel cakeOrder)
         {
             var _ = await _cakeOrderService.UpdateCakeOrderAsync(cakeOrder);

@@ -52,7 +52,8 @@ namespace CloudCityCakeCo
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IMessagingService, MessagingService>();
             services.AddScoped<IAuthyService, AuthyService>();
-           // services.AddScoped<AuthyService>();
+            services.AddScoped<IPhoneNumberService, PhoneNumberService>();
+            // services.AddScoped<AuthyService>();
 
             services.AddScoped<IStatusNotificationRule, CompletedNotificationRule>();
             services.AddScoped<IStatusNotificationRule, AcceptedNotificationRule>();
@@ -70,6 +71,7 @@ namespace CloudCityCakeCo
                 options.LoginPath = $"/Identity/Account/Login";
                 options.LogoutPath = $"/Identity/Account/Logout";
                 options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+    
             });
 
             services.AddHttpClient();

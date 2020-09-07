@@ -18,14 +18,18 @@ namespace CloudCityCakeCo.Services.Implementations
         private readonly IUserRepository _userRepository;
         private readonly ICakeOrderRepository _cakeOrderRepository;
         private readonly INotificationHandler _notificationHandler;
+        private readonly IPhoneNumberService _phoneNumberService;
+
 
         public CakeOrderService(IUserRepository userRepository,
             ICakeOrderRepository cakeOrderRepository,
-            INotificationHandler notificationHandler)
+            INotificationHandler notificationHandler,
+            IPhoneNumberService phoneNumberService)
         {
             _userRepository = userRepository?? throw new ArgumentNullException(nameof(userRepository));
             _cakeOrderRepository = cakeOrderRepository?? throw new ArgumentNullException(nameof(cakeOrderRepository));
             _notificationHandler = notificationHandler ?? throw new ArgumentNullException(nameof(notificationHandler));
+            _phoneNumberService = phoneNumberService ?? throw new ArgumentNullException(nameof(phoneNumberService));
         }
         
         public async Task<ServiceResponse<CakeOrderViewModel>> AddNewOrderAsync(OrderDetails orderDetails)
@@ -33,14 +37,19 @@ namespace CloudCityCakeCo.Services.Implementations
             var serviceResponse = new ServiceResponse<CakeOrderViewModel>();
 
             var user = await _userRepository.GetUserByPhoneNumberAsync(orderDetails.Number);
-
+            var pn = await _phoneNumberService.LookupNumber(orderDetails.Number);
             if (user == null)
             {
+
                 user = new User
                 {
                     Name = orderDetails.Name,
-                    Number = orderDetails.Number,
-                    Email = orderDetails.Email
+                    Number = pn.Content.PhoneNumber,
+                    CountryCode = pn.Content.CountryCodePrefix,
+                    Email = orderDetails.Email,
+                    NormalizedEmail = orderDetails.Email.ToUpper(),
+                    UserName = orderDetails.Email,
+                    NormalizedUserName = orderDetails.Email.ToUpper()
                 };
 
                 user = await _userRepository.AddUserAsync(user);
