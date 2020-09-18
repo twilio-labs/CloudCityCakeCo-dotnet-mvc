@@ -1,9 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
-using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -11,10 +8,10 @@ using CloudCityCakeCo.Models.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using CloudCityCakeCo.Services.Implementations;
 using CloudCityCakeCo.Services.Interfaces;
+using CloudCityCakeCo.Extensions;
+using CloudCityCakeCo.Models.Helpers;
 
 namespace CloudCityCakeCo.Areas.Identity.Pages.Account
 {
@@ -86,6 +83,8 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
+                //check if use exists
+
                 var user = new User
                 {
                     UserName = Input.Email,
@@ -97,10 +96,11 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
                     PhoneNumberConfirmed = true
                 };
                 user.AuthyId = await _authyService.RegisterUserAsync(user);
-                var result = await _userManager.CreateAsync(user, Input.Password);
-                if (result.Succeeded)
+                UserIdentityResult result = await _userManager
+                    .CheckIfPartialUserAsync(user, Input.Password);
+                if (result.IdentityResult.Succeeded)
                 {
-                    
+                   
                     _logger.LogInformation("User created a new account with password.");
 
                     
@@ -111,7 +111,7 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
 
                     //var smsToken = await _authyService.SendSmsAsync(user.AuthyId);
                     // var smsToken = "12324";
-                    await _signInManager.SignInAsync(user, isPersistent: false);
+                    await _signInManager.SignInAsync(result.User, isPersistent: false);
                     return RedirectToPage("LoginWith2fa", new { rememberMe = false, returnUrl = "~/", isRegistration = true });
 
                     // await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
@@ -128,7 +128,7 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
                     // }
                 }
 
-                foreach (var error in result.Errors)
+                foreach (var error in result.IdentityResult.Errors)
                 {
                     ModelState.AddModelError(string.Empty, error.Description);
                 }

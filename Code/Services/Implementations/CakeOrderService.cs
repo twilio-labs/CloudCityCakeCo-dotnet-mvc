@@ -44,14 +44,14 @@ namespace CloudCityCakeCo.Services.Implementations
                 user = new User
                 {
                     Name = orderDetails.Name,
-                    Number = pn.Content.PhoneNumber,
+                    PhoneNumber = pn.Content.PhoneNumber,
                     CountryCode = pn.Content.CountryCodePrefix,
                     Email = orderDetails.Email,
                     NormalizedEmail = orderDetails.Email.ToUpper(),
                     UserName = orderDetails.Email,
                     NormalizedUserName = orderDetails.Email.ToUpper()
                 };
-
+         
                 user = await _userRepository.AddUserAsync(user);
             }
             

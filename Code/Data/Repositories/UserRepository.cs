@@ -24,7 +24,7 @@ namespace CloudCityCakeCo.Data.Repositories
         {
             return await _context
                 .Users
-                .FirstOrDefaultAsync(e => e.Number == phoneNumber);
+                .FirstOrDefaultAsync(e => e.PhoneNumber == phoneNumber);
         }
     }
 }

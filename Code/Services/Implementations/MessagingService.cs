@@ -30,7 +30,7 @@ namespace CloudCityCakeCo.Services.Implementations
 
             var message = await MessageResource
                 .CreateAsync(from: new PhoneNumber("whatsapp:+14155238886"),
-                    to: new PhoneNumber(cakeOrder.User.Number),
+                    to: new PhoneNumber(cakeOrder.User.PhoneNumber),
                     body: $"Your cake order's status code is {cakeOrder.OrderStatus.ToString()}.");
 
             return new ServiceResponse

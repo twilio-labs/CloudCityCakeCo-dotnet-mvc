@@ -53,7 +53,7 @@ namespace CloudCityCakeCo
             services.AddScoped<IMessagingService, MessagingService>();
             services.AddScoped<IAuthyService, AuthyService>();
             services.AddScoped<IPhoneNumberService, PhoneNumberService>();
-            // services.AddScoped<AuthyService>();
+            
 
             services.AddScoped<IStatusNotificationRule, CompletedNotificationRule>();
             services.AddScoped<IStatusNotificationRule, AcceptedNotificationRule>();

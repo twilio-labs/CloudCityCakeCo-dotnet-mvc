@@ -28,7 +28,7 @@ namespace CloudCityCakeCo.Models.ViewModels
             OrderStatus = cakeOrder.OrderStatus;
             UserId = cakeOrder.UserId;
             UserName = user.Name;
-            PhoneNumber = user.Number;
+            PhoneNumber = user.PhoneNumber;
             Email = user.Email;
             Cake = new CakeViewModel(cakeOrder);
 

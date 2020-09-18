@@ -5,9 +5,6 @@ namespace CloudCityCakeCo.Models.Entities
 {
     public class User : IdentityUser<int>
     {
-
-        [PersonalData]
-        public string Number { get; set; }
         [PersonalData]
         public string Name { get; set; }
         [PersonalData]
