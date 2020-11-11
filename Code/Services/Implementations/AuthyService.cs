@@ -13,86 +13,57 @@ using CloudCityCakeCo.Models.Entities;
 using CloudCityCakeCo.Services.Interfaces;
 using CloudCityCakeCo.Models.Helpers;
 
+using Twilio;
+using Twilio.Rest.Verify.V2.Service;
+
 namespace CloudCityCakeCo.Services.Implementations
 {
-    public class AuthyService : IAuthyService
+    public class VerifyService : IVerifyService
     {
-        private readonly AuthySettings _authySettings;
-        private readonly IHttpClientFactory _clientFactory;
-        private readonly HttpClient _client;
-        private readonly ILogger<AuthyService> _logger;
+        private readonly VerifySettings _verifySettings;
+        private readonly ILogger<VerifyService> _logger;
 
-        public AuthyService(IOptions<AuthySettings> optionsAccessor,
+        public VerifyService(IOptions<VerifySettings> optionsAccessor,
             IHttpClientFactory clientFactory,
-            ILogger<AuthyService> logger)
+            ILogger<VerifyService> logger)
         {
-            _authySettings = optionsAccessor.Value;
-            _logger = logger;
+            string accountSid = Environment.GetEnvironmentVariable("TWILIO_ACCOUNT_SID");
+            string authToken = Environment.GetEnvironmentVariable("TWILIO_AUTH_TOKEN");
 
-            _clientFactory = clientFactory;
-            _client = _clientFactory.CreateClient();
-            _client.BaseAddress = new Uri("https://api.authy.com");
-            _client.DefaultRequestHeaders.Add("Accept", "application/json");
-            _client.DefaultRequestHeaders.Add("user-agent", "Twilio Account Security C# Sample");
-            _client.DefaultRequestHeaders.Add("X-Authy-API-Key", _authySettings.AuthyId);
+            TwilioClient.Init(accountSid, authToken);
+
+            string verifyServiceSid = Environment.GetEnvironmentVariable("VERIFY_SERVICE_SID");
         }
 
 
-
-        public async Task<string> RegisterUserAsync(User user)
+        public async Task<string> SendSmsAsync(string PhoneNumber, string verifyServiceSid)
         {
-            var userRegData = new Dictionary<string, string>() {
-                { "email", user.Email },
-                { "country_code", user.CountryCode },
-                { "cellphone", user.PhoneNumber }
-            };
-            var userRegRequestData = new Dictionary<string, object>() { };
-            userRegRequestData.Add("user", userRegData);
-            var encodedContent = new FormUrlEncodedContent(userRegData);
-
-
-            var result = await _client
-                .PostAsync("/protected/json/users/new", new StringContent(JsonConvert.SerializeObject(userRegRequestData),
-                Encoding.UTF8, "application/json"));
-
-            _logger.LogDebug(result.Content.ReadAsStringAsync().Result);
-
-            result.EnsureSuccessStatusCode();
-
-            var response = await result.Content.ReadAsAsync<Dictionary<string, object>>();
-
-            return JObject.FromObject(response["user"])["id"].ToString();
-        }
-
-
-        public async Task<string> SendSmsAsync(string authyId)
-        {
-            var result = await _client.GetAsync($"/protected/json/sms/{authyId}?force=true");
-
-            _logger.LogDebug(result.ToString());
-
-            result.EnsureSuccessStatusCode();
-
-            return await result.Content.ReadAsStringAsync();
-        }
-
-        public async Task<TokenVerificationResult> VerifyPhoneTokenAsync(string authyId, string token)
-        {
-            var result = await _client.GetAsync(
-                $"protected/json/verify/{token}/{authyId}"
+            var verification = VerificationResource.Create(
+                to: PhoneNumber,
+                channel: "sms",
+                pathServiceSid: verifyServiceSid
             );
 
-            _logger.LogDebug(result.ToString());
-            _logger.LogDebug(result.Content.ReadAsStringAsync().Result);
+            return verification;
+        }
 
-            var message = await result.Content.ReadAsStringAsync();
+        public async Task<TokenVerificationResult> VerifyPhoneTokenAsync(string PhoneNumber, string token, string verifyServiceSid)
+        {
 
-            if (result.StatusCode == HttpStatusCode.OK)
+            var verificationCheck = VerificationCheckResource.Create(
+                to: PhoneNumber,
+                code: token,
+                pathServiceSid: verifyServiceSid
+            );
+
+            Console.WriteLine(verificationCheck.Status);
+
+            if (verificationCheck.Status == "approved")
             {
-                return new TokenVerificationResult(message);
+                return new TokenVerificationResult("ok");
             }
 
-            return new TokenVerificationResult(message, false);
+            return new TokenVerificationResult("incorrect token", false);
         }
 
 
