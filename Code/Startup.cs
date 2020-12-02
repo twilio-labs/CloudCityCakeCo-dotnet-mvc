@@ -31,7 +31,7 @@ namespace CloudCityCakeCo
         {
             services.Configure<SendGridAccount>(Configuration.GetSection("SendGridAccount"));
             services.Configure<TwilioAccount>(Configuration.GetSection("TwilioAccount"));
-            services.Configure<AuthySettings>(Configuration.GetSection("AuthySettings"));
+            services.Configure<VerifySettings>(Configuration.GetSection("VerifySettings"));
 
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultSql")));
@@ -51,8 +51,8 @@ namespace CloudCityCakeCo
             services.AddScoped<ICakeOrderService, CakeOrderService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IMessagingService, MessagingService>();
-            services.AddScoped<IAuthyService, AuthyService>();
-           // services.AddScoped<AuthyService>();
+            services.AddScoped<IVerifyService, VerifyService>();
+         
 
             services.AddScoped<IStatusNotificationRule, CompletedNotificationRule>();
             services.AddScoped<IStatusNotificationRule, AcceptedNotificationRule>();

@@ -24,18 +24,15 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
         private readonly ILogger<RegisterModel> _logger;
-        private readonly IAuthyService _authyService;
 
         public RegisterModel(
             UserManager<User> userManager,
             SignInManager<User> signInManager,
-            ILogger<RegisterModel> logger,
-            IAuthyService authyService)
+            ILogger<RegisterModel> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
-            _authyService = authyService;
            
         }
 
@@ -96,7 +93,6 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
                     TwoFactorEnabled = true,
                     PhoneNumberConfirmed = true
                 };
-                user.AuthyId = await _authyService.RegisterUserAsync(user);
                 var result = await _userManager.CreateAsync(user, Input.Password);
                 if (result.Succeeded)
                 {

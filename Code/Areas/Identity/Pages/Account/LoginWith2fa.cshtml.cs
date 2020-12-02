@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using CloudCityCakeCo.Services.Interfaces;
+using CloudCityCakeCo.Models.Enums;
 
 namespace CloudCityCakeCo.Areas.Identity.Pages.Account
 {
@@ -18,15 +19,15 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
     {
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<LoginWith2faModel> _logger;
-        private readonly IAuthyService _authyService;
+        private readonly IVerifyService _verifyService;
 
         public LoginWith2faModel(SignInManager<User> signInManager,
             ILogger<LoginWith2faModel> logger,
-            IAuthyService authyService)
+            IVerifyService verifyService)
         {
             _signInManager = signInManager;
             _logger = logger;
-            _authyService = authyService;
+            _verifyService = verifyService;
         }
 
         [BindProperty]
@@ -61,19 +62,14 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
             User user = IsRegistration ?
                         await _signInManager.UserManager.GetUserAsync(User) :
                         await _signInManager.GetTwoFactorAuthenticationUserAsync();
-            //todo: swap between register and login
-            //var user = await _signInManager.UserManager.GetUserAsync(User);
-            //Ensure the user has gone through the username & password screen first
-            //var user = await _signInManager.GetTwoFactorAuthenticationUserAsync();
-
 
 
             if (user == null)
             {
                 throw new InvalidOperationException($"Unable to load two-factor authentication user.");
             }
-
-            var _ = await _authyService.SendSmsAsync(user.AuthyId);
+            var number = ConcatenateNumber(user.CountryCode, user.PhoneNumber);
+            await _verifyService.SendSmsAsync(number);
             ReturnUrl = returnUrl;
             RememberMe = rememberMe;
 
@@ -102,11 +98,11 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
                
                 throw new InvalidOperationException($"Unable to load two-factor authentication user.");
             }
+            var number = ConcatenateNumber(user.CountryCode, user.PhoneNumber);
+            var serviceResult =
+                await _verifyService.VerifyPhoneTokenAsync(number, Input.TwoFactorCode);
 
-            var tokenResult =
-                await _authyService.VerifyPhoneTokenAsync(user.AuthyId, Input.TwoFactorCode);
-
-            if (!tokenResult.Succeeded)
+            if (serviceResult.ServiceResponseStatus != ServiceResponseStatus.Ok)
             {
                 //todo: UI error notifications
                 return Page();
@@ -135,6 +131,13 @@ namespace CloudCityCakeCo.Areas.Identity.Pages.Account
                 ModelState.AddModelError(string.Empty, "Invalid authenticator code.");
                 return Page();
             }
+        }
+
+        private string ConcatenateNumber(string countryCode, string phoneNumber)
+        {
+            char[] MyChar = { '0'};
+            string number = phoneNumber.TrimStart(MyChar);
+            return countryCode + number;
         }
     }
 }

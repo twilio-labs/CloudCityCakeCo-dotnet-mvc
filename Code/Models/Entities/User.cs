@@ -12,8 +12,7 @@ namespace CloudCityCakeCo.Models.Entities
         public string Name { get; set; }
         [PersonalData]
         public string CountryCode { get; set; }
-        [PersonalData]
-        public string AuthyId { get; set; }
+     
         [PersonalData]
         public virtual IList<CakeOrder> CakeOrders { get; set; }
     }
